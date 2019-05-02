@@ -1,0 +1,50 @@
+---
+title: "decision_tree"
+author: "Chang.W.H"
+date: "2019年4月23日"
+output: html_document
+---
+
+```{r,include=FALSE}
+library(rpart)
+library(rpart.plot)
+library(rattle)
+library(AER)
+library(tidyverse)
+```
+```{r}
+load("C:/Users/user/Desktop/Learn R/titanic.raw.rdata")
+set.seed(123)
+n=nrow(titanic.raw)
+idx=sample(n,size=round(0.8*n))
+train_date=titanic.raw[idx,]
+test_data=titanic.raw[-idx,]
+model=rpart(Survived~.,data = train_date,control = rpart.control(minsplit = 5,cp=0.001,maxdepth = 30))
+##+control 修檢決策樹
+```
+#視覺化
+```{r}
+prp(model,         # 模型
+    faclen=0,           # 呈現的變數不要縮寫
+    fallen.leaves=TRUE, # 讓樹枝以垂直方式呈現
+    shadow.col="gray",  # 最下面的節點塗上陰影
+    # number of correct classifications / number of observations in that node
+    extra=2)
+```
+```{r}
+fancyRpartPlot(model) # 精美決策數
+```
+
+#預測
+```{r}
+pred=predict(model,newdata = test_data,type="class")
+table(real=test_data$Survived,predict=pred)
+```
+```{r}
+# 計算預測準確率 = 對角線的數量/總數量
+confus.matrix = table(real=test_data$Survived, predict=pred)
+sum(diag(confus.matrix))/sum(confus.matrix) # 對角線的數量/總數量
+```
+
+
+
